@@ -34,7 +34,7 @@ export default function Home() {
 
     return (
         <div>
-            <h1>Langchain with fastAPI & Next.js</h1>
+            <h1>Langchain with fastAPI  & Next.js</h1>
             <form onSubmit={handleSubmit}>
                 <textarea
                     value = {question}
