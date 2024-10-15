@@ -1,5 +1,6 @@
 import {useState} from 'react';
 
+
 export default function Home() {
     const [question, setQuestion] = useState('');
     const [response, setResponse] = useState('');
@@ -33,10 +34,11 @@ export default function Home() {
     };
 
     return (
-        <div>
-            <h1>GitChat v1</h1>
+        <div className="container max-auto px-8">
+            <h1 className="text-4xl font-bold mb-4">GitChat v1</h1>
             <form onSubmit={handleSubmit}>
                 <textarea
+                    className="w-full border rounded p-2 mb-4"
                     value = {question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder = "Enter your question here"
@@ -45,14 +47,16 @@ export default function Home() {
                 >
                 </textarea>
                 <br/>
-                <button type="submit" disabled={loading}>
+                <button 
+                    className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
+                    type="submit" disabled={loading}>
                     {loading ? 'Loading...' : 'Generate Response'}
                 </button>
             </form>
 
             {response && (
-                <div>
-                    <h2>Response:</h2>
+                <div className="mt-4">
+                    <h2 className="text-xl font-semibold">Response:</h2>
                     <p>{response}</p>
                 </div>
             )}
