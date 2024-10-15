@@ -2,15 +2,17 @@ import {useState} from 'react';
 
 
 export default function Home() {
-    const [question, setQuestion] = useState('');
+    const [githubRepo, setGithubRepo] = useState('');
     const [response, setResponse] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        console.log("Question: ", question)
+        console.log("Github Repo: ", githubRepo)
+        
         try{
+            /*
             const res = await fetch('http://localhost:8000/generate/', {
                 method: 'POST',
                 headers: {
@@ -23,6 +25,8 @@ export default function Home() {
 
             const data = await res.json();
             setResponse(data.response);
+            */
+            setResponse(githubRepo);
 
         }
         catch(err){
@@ -31,26 +35,25 @@ export default function Home() {
         finally{
             setLoading(false);
         }
+
     };
 
     return (
-        <div className="container max-auto px-8">
+        <div className="container max-auto px-20 py-8">
             <h1 className="text-4xl font-bold mb-4">GitChat v1</h1>
-            <form onSubmit={handleSubmit}>
-                <textarea
-                    className="w-full border rounded p-2 mb-4"
-                    value = {question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder = "Enter your question here"
-                    rows={5}
-                    cols={50}
+            <form onSubmit={handleSubmit} className = "flex items-center space-x-2" >
+                <input
+                    className="flex-grow border rounded p-2 "
+                    value = {githubRepo}
+                    onChange={(e) => setGithubRepo(e.target.value)}
+                    placeholder = "Enter the link of the github repository"
                 >
-                </textarea>
+                </input>
                 <br/>
                 <button 
                     className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
                     type="submit" disabled={loading}>
-                    {loading ? 'Loading...' : 'Generate Response'}
+                    {loading ? 'Loading...' : 'Submit'}
                 </button>
             </form>
 
