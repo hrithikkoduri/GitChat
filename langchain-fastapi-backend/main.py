@@ -4,6 +4,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from fastapi.middleware.cors import CORSMiddleware
+from VectorStore import VectorStore
 
 
 app = FastAPI()
@@ -22,6 +23,9 @@ app.add_middleware(
 class PromptRequest(BaseModel):
     question: str
 
+class RepoRequest(BaseModel):
+    githubRepo: str
+
 model = ChatOpenAI(model = "gpt-4o-mini", temperature = 0.5)
 
 prompt_template = PromptTemplate(
@@ -37,6 +41,18 @@ async def generate_response(request: PromptRequest):
         print("Request: ", request.question)
         response = chain.run(request.question)
         return {"response": response}
+    except Exception as e:
+        print("Error: ", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/load-repo/")
+async def load_repo(repo_request: RepoRequest):
+    try:
+        repo_url = repo_request.githubRepo  
+        loader = VectorStore()
+        loader.load_github_repo(repo_url)
+        return {"status": "Success"}
     except Exception as e:
         print("Error: ", e)
         raise HTTPException(status_code=400, detail=str(e))
