@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import githubLogo from '../logo.png';
 
 
 export default function Home() {
@@ -108,12 +109,20 @@ export default function Home() {
 
 
     return (
-        <div className="container max-auto px-20 py-8">
-            <h1 className="text-4xl font-bold mb-4">GitChat v2</h1>
+        <div className="w-full min-h-screen  bg-black">
+            <div className="container mx-auto max-w-screen-lg  min-w-screen px-10 py-8">
+            <div className="flex items-center justify-center mb-4">
+                <img
+                    src={githubLogo.src} // GitHub logo
+                    alt="GitHub Logo"
+                    className="h-10 w-10 mr-2" // Adjust height and width as needed
+                />
+                <h1 className="text-4xl font-bold text-white">GitChat</h1>
+            </div>
             {showInputs && (
                 <form onSubmit={handleSubmit} className = "flex items-center space-x-2" >
                     <input
-                        className="flex-grow border rounded p-2 "
+                        className="flex-grow border border-white rounded p-2  bg-black text-white"
                         value = {githubRepo}
                         onChange={(e) => setGithubRepo(e.target.value)}
                         placeholder = "Enter the link of the github repository"
@@ -121,7 +130,7 @@ export default function Home() {
                     </input>
                     <br/>
                     <button 
-                        className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
+                        className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-800' : 'bg-blue-500 hover:bg-blue-600'}`}
                         type="submit" disabled={loading}>
                         {loading ? 'Loading...' : 'Submit'}
                     </button>
@@ -141,17 +150,18 @@ export default function Home() {
             )}
 
             {deleteRepoMessage && (
-                <div className="container flex items-center max-auto px-25 py-5 space-x-4 animate-fadeIn">
-                    <p className = "text-l font-medium">{deleteRepoMessage}</p>
+                <div className="container flex items-center justify-center max-auto px-25 py-5 space-x-4 animate-fadeIn">
                     <button 
                         onClick={handleRemoveRepo}
-                        className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'}`}
+                        className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-800' : 'bg-red-500 hover:bg-red-600'}`}
                         type="submit" disabled={loading}>
-                        {loading ? 'Deleting...' : 'Delete'}
+                        {loading ? 'Deleting...' : 'Delete Repository'}
                     </button>
                 </div>
             )}
 
         </div>
+        </div>
+        
     )
 }   
