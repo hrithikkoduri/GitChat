@@ -122,7 +122,7 @@ export default function Home() {
             {showInputs && (
                 <form onSubmit={handleSubmit} className = "flex items-center space-x-2" >
                     <input
-                        className="flex-grow border border-white rounded p-2  bg-black text-white"
+                        className="flex-grow border border-gray-100 rounded p-2  bg-black text-white"
                         value = {githubRepo}
                         onChange={(e) => setGithubRepo(e.target.value)}
                         placeholder = "Enter the link of the github repository"
