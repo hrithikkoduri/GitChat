@@ -10,6 +10,7 @@ export default function Home() {
     const [showInputs, setShowInputs] = useState(true);
     const [finalMessage, setFinalMessage] = useState('');
     const [deleteRepoMessage, setDeleteRepoMessage] = useState('');
+    const [chatMessage, setChatMessage] = useState(''); 
 
 
 
@@ -106,11 +107,16 @@ export default function Home() {
         }
     
     }
+    const handleChatSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Chat message:", chatMessage);
+        setChatMessage(''); // Clear input after sending
+    };
 
 
     return (
         <div className="w-full min-h-screen  bg-black">
-            <div className="container mx-auto max-w-screen-lg  min-w-screen px-10 py-8">
+            <div className="container mx-auto max-w-screen-sm  min-w-screen px-10 py-8">
             <div className="flex items-center justify-center mb-4">
                 <img
                     src={githubLogo.src} // GitHub logo
@@ -122,7 +128,7 @@ export default function Home() {
             {showInputs && (
                 <form onSubmit={handleSubmit} className = "flex items-center space-x-2" >
                     <input
-                        className="flex-grow border border-gray-100 rounded p-2  bg-black text-white"
+                        className="flex-grow border border-gray-100 rounded-3xl p-2  bg-black text-white"
                         value = {githubRepo}
                         onChange={(e) => setGithubRepo(e.target.value)}
                         placeholder = "Enter the link of the github repository"
@@ -130,7 +136,7 @@ export default function Home() {
                     </input>
                     <br/>
                     <button 
-                        className={`px-4 py-2 text-white rounded ${loading ? 'bg-gray-800' : 'bg-blue-500 hover:bg-blue-600'}`}
+                        className={`px-4 py-2 text-white text-xl rounded-3xl ${loading ? 'bg-gray-800' : 'bg-blue-500 hover:bg-blue-600'}`}
                         type="submit" disabled={loading}>
                         {loading ? 'Loading...' : 'Submit'}
                     </button>
@@ -159,8 +165,22 @@ export default function Home() {
                     </button>
                 </div>
             )}
-
         </div>
+            <form onSubmit={handleChatSubmit} className="fixed bottom-0 left-0 w-full  p-4">
+                <div className="container mx-auto max-w-screen-lg flex items-center space-x-2">
+                    <input
+                        className="flex-grow border border-gray-300 rounded-3xl p-2 bg-black text-white"
+                        value={chatMessage}
+                        onChange={(e) => setChatMessage(e.target.value)}
+                        placeholder="Type your message..."
+                    />
+                    <button
+                        className="px-4 py-2 bg-blue-500 text-white text-3xl rounded-3xl hover:bg-blue-600"
+                        type="submit">
+                        𖤂 {/* Arrow symbol */}
+                    </button>
+                </div>
+            </form>
         </div>
         
     )
