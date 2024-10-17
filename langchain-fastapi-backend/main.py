@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +8,7 @@ from VectorStore import VectorStore
 
 
 app = FastAPI()
+deeplake = VectorStore()
 
 origins = [
     "http://localhost:3000",  # Allow requests from your Next.js app
@@ -32,7 +33,7 @@ prompt_template = PromptTemplate(
     template = "Anser the following question: {question}",
     input_variables = ["question"]
 )
-chain = LLMChain(llm = model, prompt=prompt_template)
+chain = model | prompt_template
 
 @app.post("/generate/")
 
@@ -50,8 +51,17 @@ async def generate_response(request: PromptRequest):
 async def load_repo(repo_request: RepoRequest):
     try:
         repo_url = repo_request.githubRepo  
-        loader = VectorStore()
-        loader.load_github_repo(repo_url)
+        deeplake.load_github_repo(repo_url)
+        return {"status": "Success"}
+    except Exception as e:
+        print("Error: ", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/delete-repo/")
+async def delete_repo(repo_request: RepoRequest):
+    try:
+        repo_url = repo_request.githubRepo
+        deeplake.delete_github_repo(repo_url)
         return {"status": "Success"}
     except Exception as e:
         print("Error: ", e)

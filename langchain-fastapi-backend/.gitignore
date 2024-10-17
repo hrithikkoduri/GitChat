@@ -1,1 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+*.so
+
+# Environment variables
 .env
+
+# Node.js
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# TypeScript
+*.tsbuildinfo
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build files
+/build
+/dist
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Project specific folders
+/_pycache_/
+/venv/
+/.next/
+/node_modules/
+
+# Keep the pages folder, but ignore some generated files within it
+!/pages
+/pages/**/*.js
+/pages/**/*.js.map
+
+# Keep the styles folder
+!/styles
+
+# Ignore any potential build or cache folders
+/public/_next/
+/.vercel/
