@@ -5,21 +5,24 @@ interface ChatFormProps {
 }
 
 export default function ChatForm({ onSubmit }: ChatFormProps) {
-    const [chatMessage, setChatMessage] = useState('');
+    const [message, setMessage] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(chatMessage);
-        setChatMessage(''); // Clear input after sending
+        if(message.trim()) 
+        {
+            onSubmit(message);
+            setMessage('');
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 w-full p-4">
-            <div className="container mx-auto max-w-screen-lg flex items-center space-x-2">
+        <form onSubmit={handleSubmit} className="fixed bottom-5 left-0 w-full p-4">
+            <div className="container mx-auto max-w-screen-xl flex items-center space-x-2">
                 <input
                     className="flex-grow border border-gray-300 rounded-3xl p-2 bg-black text-white"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     placeholder="Type your message..."
                 />
                 <button

@@ -5,6 +5,10 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from fastapi.middleware.cors import CORSMiddleware
 from VectorStore import VectorStore
+import json
+import re
+from ai_output import Output
+from typing import List
 
 
 app = FastAPI()
@@ -21,27 +25,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class ChatMessage(BaseModel):
+    sender: str
+    message: str
+
 class PromptRequest(BaseModel):
     question: str
+    #chat_history: List[ChatMessage]
 
 class RepoRequest(BaseModel):
     githubRepo: str
 
-model = ChatOpenAI(model = "gpt-4o-mini", temperature = 0.5)
+output = Output()
+db = None
 
-prompt_template = PromptTemplate(
-    template = "Anser the following question: {question}",
-    input_variables = ["question"]
-)
-chain = model | prompt_template
-
-@app.post("/generate/")
-
-async def generate_response(request: PromptRequest):
+@app.post("/chat/")
+async def chat(request: PromptRequest):
     try:
         print("Request: ", request.question)
-        response = chain.run(request.question)
+        #print("Chat History: ", request.chat_history)
+
+        #response = output.chat(request.question, request.chat_history)
+        response = output.chat(request.question)
+        
+        print("Response: ", response)
         return {"response": response}
+
     except Exception as e:
         print("Error: ", e)
         raise HTTPException(status_code=400, detail=str(e))
@@ -51,7 +60,7 @@ async def generate_response(request: PromptRequest):
 async def load_repo(repo_request: RepoRequest):
     try:
         repo_url = repo_request.githubRepo  
-        deeplake.load_github_repo(repo_url)
+        db = deeplake.load_github_repo(repo_url)
         return {"status": "Success"}
     except Exception as e:
         print("Error: ", e)
@@ -66,3 +75,4 @@ async def delete_repo(repo_request: RepoRequest):
     except Exception as e:
         print("Error: ", e)
         raise HTTPException(status_code=400, detail=str(e))
+

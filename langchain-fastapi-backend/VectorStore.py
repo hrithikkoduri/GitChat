@@ -66,9 +66,9 @@ class VectorStore:
         shutil.rmtree(repo_dir)
         print(f"Adding {len(all_document_objects)} chunks to the vector store...")
         self.db.add_documents(documents=all_document_objects)    
-
-        
         print("Repo Cloned and Loaded!")
+
+        return self.db
 
     def delete_github_repo(self, repo_url):
         self.db = DeepLake(dataset_path = self.dataset_path)
