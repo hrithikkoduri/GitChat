@@ -35,3 +35,18 @@
         opacity: 0;
     }
 }
+
+/* styles/globals.css */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+.chat-message {
+    font-family: 'Roboto', sans-serif; /* Ensure chat messages use Roboto */
+}
+h1 {
+    font-family: 'Roboto', sans-serif;
+    color: red; /* Change color to check visibility */
+}
