@@ -1,5 +1,5 @@
 
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 import os
 from dotenv import load_dotenv
 from langchain_community.vectorstores import DeepLake
@@ -17,21 +17,17 @@ from langchain_core.messages import HumanMessage, AIMessage
 load_dotenv()
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
-activeloop_token = os.getenv("ACTIVELOOP_TOKEN")
+
 
 class Output:
-    def __init__(self):
+    def __init__(self, db):
         self.llm = ChatOpenAI(model = "gpt-4o-mini", temperature = 0.5)
-
-        self.activeloop_org = "hrithikkoduri18"
-        self.activeloop_dataset = "gitchat_test_2"
-        self.dataset_path = f"hub://{self.activeloop_org}/{self.activeloop_dataset}"
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-        self.db = DeepLake(dataset_path = self.dataset_path, embedding=self.embeddings)
+        self.db = db
         self.retriever = self.db.as_retriever()
         self.retriever.search_kwargs['distance_metric'] = 'cos'
         self.retriever.search_kwargs['fetch_k'] = 100
         self.retriever.search_kwargs['k'] = 10
+        self.chat_history = []
 
         self.prompt_search_query = ChatPromptTemplate.from_messages([
         MessagesPlaceholder(variable_name="chat_history"),
@@ -42,13 +38,15 @@ class Output:
         self.retriever_chain = create_history_aware_retriever(self.llm, self.retriever, self.prompt_search_query)
         
         self.system_message  = '''   
-            You are an AI assistant designed to help users understand and interact with GitHub repositories. Your primary role is to answer questions based on the information extracted from the specified GitHub repo URL.
+            You are an AI assistant designed to help users understand and interact with GitHub repositories. Your primary role is to answer questions based on the information extracted from the specified GitHub repo URL, which the user has already provided and is stored in the vector store.
 
-            The user has already provided the GitHub repository URL, it is stored in the vector store. You will have the conext of the information with the documents in the vector store.
+            For the context of the conversation, you can use this {context}.
 
-            For the context of conversation, you can use this {context}.
+            If no question is asked, offer a brief overview of the repository and suggest possible questions. If you don't know the answer, ask the user to be more specific. If the question is not related to the repository, request a relevant question.
 
-            Your goals are to:
+            When asked for code snippets, provide exact code as it appears in the repository; do not generate or summarize code on your own.
+
+            **Your goals are to:**
             - Answer questions related to the GitHub repository.
             - Provide relevant code snippets and explanations as needed.
             - Offer guidance on understanding repository structures, files, and functionalities.
@@ -60,7 +58,6 @@ class Output:
             3. Focus solely on the information available in the GitHub repository context.
             4. If a question exceeds the documentation, guide users to the relevant sections or suggest they check the repository directly.
             5. Use technical language only when necessary; prioritize simplicity and clarity.
-            6. If no question is asked, provide a brief overview of the repository and suggest possible questions users might have.
 
             '''
 
@@ -80,11 +77,40 @@ class Output:
     def chat(self, question):
         
         print("Entered chat function")
-        chat_history = []  # Default to an empty list if it's not a list
-    
+        print("-------------------")
+        print("Question inside function:",question)
+        print("-------------------")
+        print("Chat History inside function:",self.chat_history)
+
         response = self.retrieval_chain.invoke(
-            {"input": question, "chat_history": chat_history}
+            {"input": question, "chat_history": self.chat_history}
         )
+        
+        self.chat_history.append(HumanMessage(question))
+        self.chat_history.append(AIMessage(response['answer']))
 
-        return response['answer']
+        self.chat_history = self.chat_history[-6:]
 
+        json_response = {
+            "response": response['answer'],
+            "chat_history": self.chat_history
+        }
+        return json_response
+
+def main():
+    output = Output()
+    question = "What is the purpose of this repository?"
+    response = output.chat(question)
+    print("Response:",response['response'])
+    print("Chat History:",response['chat_history'])
+
+    print("-------------------")
+    question = "What are the different features?"
+    response = output.chat(question)
+    print("Response:",response['response'])
+    print("Chat History:",response['chat_history'])
+
+    
+
+if __name__ == "__main__":
+    main()
