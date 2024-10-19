@@ -1,10 +1,11 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import Header from '../components/Header';
 import GitHubForm from '../components/GitHubForm';
 import ResponseMessage from '../components/ResponseMessage';
 import DeleteRepo from '../components/DeleteRepo';
 import ChatForm from '../components/ChatForm';
 import ChatArea from '../components/ChatArea';
+
 
 interface ChatMessage{
     sender: 'user' | 'bot';
@@ -14,18 +15,54 @@ interface ChatMessage{
 export default function Home() {
     const [githubRepo, setGithubRepo] = useState('');
     const [response, setResponse] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [chatLoading, setChatLoading] = useState(false);
     const [error, setError] = useState(false);
-    const [showInputs, setShowInputs] = useState(true);
+    const [showInputs, setShowInputs] = useState(false);
     const [finalMessage, setFinalMessage] = useState('');
     const [deleteRepoMessage, setDeleteRepoMessage] = useState('');
     const [chatMessage, setChatMessage] = useState(''); 
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
+    useEffect(() => {
+        const storedRepo = async () => {
+            try{
+                const res = await fetch('http://localhost:8000/get-repo-url/');
+                const data = await res.json();
+                if (data.url == 'Exist'){
+                    setGithubRepo(data.repo_url);
+                    console.log("Github Repo: ", data.repo_url);
+                    setTimeout(() => {
+                        setFinalMessage(`All files stored in the database from <span class="underline">${data.repo_url}</span>. Now let's chat!`);
+                        setShowInputs(false);
+                        setInitialLoading(false);
+
+                        setTimeout(() => {
+                            setFinalMessage('');
+                            setDeleteRepoMessage(`Do you want to delete the repository ${data.repo_url} and add another GitHub repository?`);
+                        }, 2000);
+                    }, 2000);
+                    
+                }
+                else {
+                    setShowInputs(true);
+                }
+            } catch(err){
+                console.error("Error fetching response", err);
+                setShowInputs(true);
+        setShowInputs(true);
+            } finally {
+                setInitialLoading(false);
+            }
+            
+        };
+        storedRepo();
+    }, []);
 
 
     const handleGitHubSubmit = async (githubRepo: string) => {
-        setLoading(true);
+        setInitialLoading(false);
         console.log("Github Repo: ", githubRepo)
         
         try{
@@ -41,8 +78,9 @@ export default function Home() {
             if(data.status === 'Success'){
                 setResponse(`Successfully loaded files from ${githubRepo}`);
                 setError(false);
-                
 
+                
+                setGithubRepo(githubRepo);
                 setTimeout(() => {
                     
                     setResponse(''); 
@@ -53,7 +91,6 @@ export default function Home() {
                         setFinalMessage(''); 
                         setShowInputs(false);
                         setDeleteRepoMessage(`Do you want to delete the repository ${githubRepo} and add another GitHub repository?`);
-                        
                         
                     }, 4000); 
                     
@@ -70,13 +107,13 @@ export default function Home() {
             console.error("Error fetching response", err);
         }
         finally{
-            setLoading(false);
+            setInitialLoading(false);
         }
 
     };
 
     const handleRemoveRepo = async () => {
-        setLoading(true);
+        setDeleteLoading(true);
 
         try{
             const res = await fetch('http://localhost:8000/delete-repo/', {
@@ -112,20 +149,16 @@ export default function Home() {
             console.error("Error fetching response", err);
         }
         finally{
-            setLoading(false);
+            setDeleteLoading(false);
         }
     
     }
     const handleChatSubmit = async (message: string) => {
+        setChatLoading(true);
         console.log("Chat message:", message);
         setChatHistory([...chatHistory, {sender: 'user', message}]);
         setChatMessage(''); // Clear input after sending
 
-         // Prepare the chat history to be sent to the backend
-        const formattedChatHistory = chatHistory.map((chat) => ({
-            sender: chat.sender,
-            message: chat.message,
-        }));
 
         try{
             const res = await fetch('http://localhost:8000/chat/', {
@@ -147,26 +180,38 @@ export default function Home() {
         catch(err){
             console.error("Error fetching response", err);
         }
-
+        finally{
+            setChatLoading(false);
+        }
     };
 
 
     return (
         <div className="w-full h-screen flex flex-col bg-black fixed">
-=            <div className="container mx-auto max-w-screen-sm px-10 py-5">
+            
+=            <div className="container mx-auto max-w-screen-sm px-5 mb-2">
                 <Header />
-                <GitHubForm onSubmit={handleGitHubSubmit} loading={loading} showInputs={showInputs} />
+                {initialLoading ? (
+                <div className="text-white text-center">
+                    <div className="spinner"></div>
+                    <p>Setting up...</p>
+                </div>
+                ) : (
+                <>
+                <p className="text-gray-400 text-center">{githubRepo ? `Currently using repository: ${githubRepo}` : 'No repository loaded'}</p>
+                <GitHubForm onSubmit={handleGitHubSubmit} loading={initialLoading} showInputs={showInputs} />
                 <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
-                <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={loading} />
+                </>
+                )}
             </div>
-
+            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} />
             {/* Main Chat Area */}
-            <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4 py-5 overflow-hidden">
-                <div className="flex-grow overflow-hidden">
-                    <ChatArea chatHistory={chatHistory} />
+            <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4  overflow-hidden">
+                <div className="flex-grow overflow-hidden mb-12">
+                    <ChatArea chatHistory={chatHistory} isLoading={chatLoading} />
                 </div>
                 {/* Chat Form - Always visible at the bottom */}
-                <div className="mt-4 py-8">
+                <div className="mt-4 py-4">
                     <ChatForm onSubmit={handleChatSubmit} />
                 </div>
             </div>

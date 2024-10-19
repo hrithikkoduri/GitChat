@@ -28,7 +28,7 @@ export default function GitHubForm({ onSubmit, loading, showInputs }: GitHubForm
                 className={`px-4 py-2 text-white text-lg rounded-3xl ${loading ? 'bg-gray-800' : 'bg-blue-500 hover:bg-blue-600'}`}
                 type="submit"
                 disabled={loading}>
-                {loading ? 'Loading...' : 'Submit'}
+                {loading ? <div className="spinner">Loading...</div> : 'Submit'}
             </button>
         </form>
     );

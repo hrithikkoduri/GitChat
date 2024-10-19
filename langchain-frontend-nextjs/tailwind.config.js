@@ -20,6 +20,9 @@ export const theme = {
       fadeIn: 'fadeIn 1s ease-in-out forwards',
       fadeOut: 'fadeOut 1s ease-in-out forwards',
     },
+    fontFamily: {
+      inter: ['Inter', 'sans-serif'],
+    },
   },
 };
 export const plugins = [];
