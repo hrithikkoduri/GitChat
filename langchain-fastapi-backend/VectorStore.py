@@ -18,7 +18,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 class VectorStore:
     def __init__(self):
         self.activeloop_org = "hrithikkoduri18"
-        self.activeloop_dataset = "gitchat_test_7"
+        self.activeloop_dataset = "gitchat_test_8"
         self.dataset_path = f"hub://{self.activeloop_org}/{self.activeloop_dataset}"
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         self.db = None
@@ -26,6 +26,7 @@ class VectorStore:
     
     def load_db(self):
         self.db = DeepLake(dataset_path = self.dataset_path, embedding=self.embeddings)
+        print("Loaded Vector Store!")
         return self.db
     
     def load_github_repo(self, repo_url):
@@ -82,7 +83,6 @@ class VectorStore:
         self.db = DeepLake(dataset_path = self.dataset_path)
 
         print(f"Deleting all documents related to {repo_url} from the vector store...")
-        self.db.delete(
-            filter={"metadata": {"repo_url": repo_url}}
-        )
+        self.db.delete(filter ={"metadata": {"repo_url": repo_url}})
+      
         print("Deleted all documents!")

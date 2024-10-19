@@ -58,7 +58,7 @@ class ChatMessage(BaseModel):
 
 class PromptRequest(BaseModel):
     question: str
-    #chat_history: List[ChatMessage]
+   
 
 class RepoRequest(BaseModel):
     githubRepo: str
@@ -73,9 +73,7 @@ conn, c = init_db()
 async def chat(request: PromptRequest):
     try:
         print("Request: ", request.question)
-        #print("Chat History: ", request.chat_history)
 
-        #response = output.chat(request.question, request.chat_history)
         response = Output(db).chat(request.question)
         
         print("Response: ", response['response'])
@@ -87,6 +85,7 @@ async def chat(request: PromptRequest):
 
 @app.get("/get-repo-url/")
 async def get_repo_url():
+    db = deeplake.load_db()
     try:
         url = is_url_(c)
         if url is not None:
@@ -115,8 +114,9 @@ async def delete_repo(repo_request: RepoRequest):
     global db
     try:
         repo_url = repo_request.githubRepo
+        print("Deleting repo: ", repo_url)
         db = deeplake.delete_github_repo(repo_url)    
-        delete__url(conn, c, repo_url)
+        delete_url(conn, c, repo_url)
         return {"status": "Success"}
     except Exception as e:
         print("Error: ", e)

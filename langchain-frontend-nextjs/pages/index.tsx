@@ -5,6 +5,8 @@ import ResponseMessage from '../components/ResponseMessage';
 import DeleteRepo from '../components/DeleteRepo';
 import ChatForm from '../components/ChatForm';
 import ChatArea from '../components/ChatArea';
+import ThemeToggle from '../components/ThemeToggle';
+
 
 
 interface ChatMessage{
@@ -24,6 +26,7 @@ export default function Home() {
     const [deleteRepoMessage, setDeleteRepoMessage] = useState('');
     const [chatMessage, setChatMessage] = useState(''); 
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+    const [darkMode, setDarkMode] = useState(false);
 
     useEffect(() => {
         const storedRepo = async () => {
@@ -55,10 +58,22 @@ export default function Home() {
             } finally {
                 setInitialLoading(false);
             }
-            
         };
         storedRepo();
+        
     }, []);
+
+    useEffect(() => {
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [darkMode]);
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
 
 
     const handleGitHubSubmit = async (githubRepo: string) => {
@@ -187,32 +202,38 @@ export default function Home() {
 
 
     return (
-        <div className="w-full h-screen flex flex-col bg-black fixed">
+        <div className={`${darkMode? `bg-black`:`bg-white`} w-full h-screen flex flex-col`}>
+            <ThemeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+
             
-=            <div className="container mx-auto max-w-screen-sm px-5 mb-2">
-                <Header />
+           <div className="container mx-auto max-w-screen-sm px-5 mb-2">
+                <Header mode={darkMode}/>
                 {initialLoading ? (
-                <div className="text-white text-center">
-                    <div className="spinner"></div>
+                <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                    <div className={`spinner mr-2 ${darkMode ? 'dark' : 'light'}`}></div>
                     <p>Setting up...</p>
                 </div>
                 ) : (
                 <>
-                <p className="text-gray-400 text-center">{githubRepo ? `Currently using repository: ${githubRepo}` : 'No repository loaded'}</p>
-                <GitHubForm onSubmit={handleGitHubSubmit} loading={initialLoading} showInputs={showInputs} />
+                <p className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                    {githubRepo ? 
+                    <>
+                        Currently using repository: <span className={`${darkMode ? 'text-white' : 'text-black'} font-bold`}>{githubRepo}</span>  
+                    </> :""}</p>
+                <GitHubForm onSubmit={handleGitHubSubmit} loading={initialLoading} showInputs={showInputs} mode ={darkMode}/>
                 <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
                 </>
                 )}
             </div>
-            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} />
+            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} mode={darkMode}  />
             {/* Main Chat Area */}
             <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4  overflow-hidden">
                 <div className="flex-grow overflow-hidden mb-12">
-                    <ChatArea chatHistory={chatHistory} isLoading={chatLoading} />
+                    <ChatArea chatHistory={chatHistory} isLoading={chatLoading} mode={darkMode} />
                 </div>
                 {/* Chat Form - Always visible at the bottom */}
                 <div className="mt-4 py-4">
-                    <ChatForm onSubmit={handleChatSubmit} />
+                    <ChatForm onSubmit={handleChatSubmit} mode={darkMode} />
                 </div>
             </div>
         </div>

@@ -4,9 +4,10 @@ interface GitHubFormProps {
     onSubmit: (githubRepo: string) => void;
     loading: boolean;
     showInputs: boolean;
+    mode: boolean;
 }
 
-export default function GitHubForm({ onSubmit, loading, showInputs }: GitHubFormProps) {
+export default function GitHubForm({ onSubmit, loading, showInputs, mode }: GitHubFormProps) {
     const [githubRepo, setGithubRepo] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -19,7 +20,9 @@ export default function GitHubForm({ onSubmit, loading, showInputs }: GitHubForm
     return (
         <form onSubmit={handleSubmit} className="flex items-center space-x-2">
             <input
-                className="flex-grow border border-gray-100 rounded-3xl p-2 bg-black text-white"
+                //className="flex-grow border border-gray-100 rounded-3xl p-2 bg-black text-white"
+                className={`flex-grow border border-gray-300 rounded-3xl p-2 ${mode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}
+
                 value={githubRepo}
                 onChange={(e) => setGithubRepo(e.target.value)}
                 placeholder="Enter the link of the github repository"

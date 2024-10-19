@@ -12,9 +12,10 @@ interface ChatMessage {
 interface ChatAreaProps {
     chatHistory: ChatMessage[];
     isLoading: boolean;
+    mode: boolean;
 }
 
-export default function ChatArea({ chatHistory , isLoading}: ChatAreaProps) {
+export default function ChatArea({ chatHistory , isLoading, mode}: ChatAreaProps) {
     const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -85,21 +86,21 @@ export default function ChatArea({ chatHistory , isLoading}: ChatAreaProps) {
             } else if (part.startsWith('`') && part.endsWith('`')) {
                 const inlineCode = part.slice(1, -1);
                 return (
-                    <code key={index} className="bg-gray-800 text-white px-2 py-1 rounded font-mono text-sm">
+                    <code key={index} className={`${mode? `bg-gray-800 text-white ` : `bg-gray-300 text-black ` } py-1 px-2 rounded font-mono text-xs`}>
                         {inlineCode}
                     </code>
                 );
             } else if (part.startsWith('**') && part.endsWith('**')) {
                 const boldText = part.slice(2, -2);
                 return (
-                    <strong key={index} className="text-white font-extrabold text-lg">
+                    <strong key={index} className={`${mode ? `text-white`: `text-black`} font-extrabold text-lg `}>
                         {boldText}
                     </strong>
                 );
             } else if (part.startsWith('###')) {
                 const headingText = part.slice(3).trim();
                 return (
-                    <h3 key={index} className="text-2xl font-bold text-white mt-6 mb-4">
+                    <h3 key={index} className={`${mode ? `text-white`: `text-black`}text-2xl font-bold`}>
                         {headingText}
                     </h3>
                 );
@@ -118,15 +119,17 @@ export default function ChatArea({ chatHistory , isLoading}: ChatAreaProps) {
     return (
         <div ref={chatContainerRef} className="h-full overflow-y-scroll text-lg p-4 rounded-lg flex flex-col-reverse font-inter">
             {isLoading && (
-                <div className="chat-message  flex justify-center">
-                    <div className="flex items-center p-1 bg-black text-white text-sm rounded">
-                        <div className="spinner mr-2"></div>
+                <div className="chat-message  flex justify-start">
+                    <div className={`${mode ?  'text-white' :'text-black'} flex items-center p-1 text-lg rounded bg-none`}>
+
+                        <div className={`spinner mr-2 ${mode ? 'dark' : 'light'}`}></div>
+
                         <span>Generating Response...</span>
                     </div>
                 </div>
             )}
             {chatHistory.slice().reverse().map((chat, index) => (
-                <div key={index} className={`chat-message my-2 flex ${chat.sender === 'user' ? 'justify-end' : 'justify-center'}`}>
+                <div key={index} className={`chat-message my-2 flex ${chat.sender === 'user' ? 'justify-end' : ' justify-center '}`}>
                     {chat.sender === 'user' ? (
                         <p 
                             className="p-2 bg-blue-500 text-white text-sm rounded-lg max-w-xs text break-words"
@@ -137,7 +140,7 @@ export default function ChatArea({ chatHistory , isLoading}: ChatAreaProps) {
                     ) : (
                         <div className="w-4/5">
                             <pre 
-                                className="p-2 text-gray-400 rounded-lg whitespace-pre-wrap overflow-x-auto font-inter"
+                                className={`${mode ?  `text-gray-400`: `text-gray-600`} p-2 rounded-lg  text-lg whitespace-pre-wrap overflow-x-auto font-inter text-justify`}
                                 style={{ 
                                     maxWidth: '100%',
                                     overflowWrap: 'break-word',
