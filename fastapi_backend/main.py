@@ -37,9 +37,9 @@ class MainApp:
             allow_headers=["*"],
         )
         
-        @self.app.on_event("startup")
-        async def load_deeplake_db():
-            print("deeplake DB loaded at startup")
+        @self.app.get("/health/")
+        async def health_check():
+            return {"status": "healthy"}
 
         @self.app.post("/chat/")
         async def chat(request: PromptRequest):
