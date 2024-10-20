@@ -86,9 +86,7 @@ class Output:
         response = self.retrieval_chain.invoke(
             {"input": question, "chat_history": self.chat_history}
         )
-        print("-------------------")
-        print( "Context:",response['context'])
-        print("-------------------")
+        
         self.chat_history.append(HumanMessage(question))
         self.chat_history.append(AIMessage(response['answer']))
 

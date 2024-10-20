@@ -29,8 +29,31 @@ export default function Home() {
     const [darkMode, setDarkMode] = useState(false);
     const [githubLoading, setGithubLoading] = useState(false);
     const [showRepoMessage, setShowRepoMessage] = useState(false); 
+    const [serverAvailable, setServerAvailable] = useState(false);
+    const [serverCheckLoading, setServerCheckLoading] = useState(true);
 
+    useEffect(() => {
+        const checkServerAvailability = async () => {
+            try {
+                const res = await fetch('http://localhost:8000/health/');
+                if (res.ok) {
+                    const data = await res.json();
+                    setServerAvailable(data.status === 'healthy');
+                } else {
+                    setServerAvailable(false);
+                }
+            } catch (error) {
+                console.error("Error checking server availability:", error);
+                setServerAvailable(false);
+            } finally {
+                setServerCheckLoading(false);
+            }
+        };
 
+        checkServerAvailability();
+    }, []);
+    
+    
     useEffect(() => {
         const storedRepo = async () => {
             try{
@@ -212,34 +235,52 @@ export default function Home() {
 
             <div className="container mx-auto max-w-screen-sm px-5 mb-2">
                 <Header mode={darkMode} />
-                {initialLoading ? (
+                
+                {serverCheckLoading ? (
                     <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
                         <div className={`spinner mr-2 ${darkMode ? 'dark' : 'light'}`}></div>
-                        <p>Setting up...</p>
+                        <p>Checking server status...</p>
                     </div>
-                ) : (
+                ) : serverAvailable ? (
                     <>
-                        {showRepoMessage && (
-                            <p className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
-                                Currently using repository: <span className={`${darkMode ? 'text-white' : 'text-black'} font-bold`}>{githubRepo}</span>
-                            </p>
+                        {initialLoading ? (
+                            <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                                <div className={`spinner mr-2 ${darkMode ? 'dark' : 'light'}`}></div>
+                                <p>Setting up...</p>
+                            </div>
+                        ) : (
+                            <>
+                                {showRepoMessage && (
+                                    <p className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                                        Currently using repository: <span className={`${darkMode ? 'text-white' : 'text-black'} font-bold`}>{githubRepo}</span>
+                                    </p>
+                                )}
+                                <GitHubForm onSubmit={handleGitHubSubmit} loading={githubLoading} showInputs={showInputs} mode={darkMode} />
+                                <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
+                            </>
                         )}
-                        <GitHubForm onSubmit={handleGitHubSubmit} loading={githubLoading} showInputs={showInputs} mode={darkMode} />
-                        <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
                     </>
+                ) : (
+                    <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                        <p>Server unavailable. Please try again later.</p>
+                    </div>
                 )}
             </div>
-            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} mode={darkMode} />
-            {githubRepo && (
-                <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4 overflow-hidden">
-                    <div className="flex-grow overflow-hidden mb-12">
-                        <ChatArea chatHistory={chatHistory} isLoading={chatLoading} mode={darkMode} />
-                    </div>
-                    
-                    <div className="mt-4 py-4">
-                        <ChatForm onSubmit={handleChatSubmit} mode={darkMode} />
-                    </div>
-                </div>
+
+            {serverAvailable && (
+                <>
+                    <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} mode={darkMode} />
+                    {githubRepo && (
+                        <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4 overflow-hidden">
+                            <div className="flex-grow overflow-hidden mb-12">
+                                <ChatArea chatHistory={chatHistory} isLoading={chatLoading} mode={darkMode} />
+                            </div>
+                            <div className="mt-4 py-4">
+                                <ChatForm onSubmit={handleChatSubmit} mode={darkMode} />
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
