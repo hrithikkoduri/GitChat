@@ -51,6 +51,7 @@ class Output:
             - Provide relevant code snippets and explanations as needed.
             - Offer guidance on understanding repository structures, files, and functionalities.
             - Assist with common GitHub operations and best practices.
+            - Also mention which file the code snippet is from by giving a seperate reference section at the end of the code snippet.
 
             **Behavior Guidelines:**
             1. Be helpful, friendly, and concise.
@@ -85,7 +86,9 @@ class Output:
         response = self.retrieval_chain.invoke(
             {"input": question, "chat_history": self.chat_history}
         )
-        
+        print("-------------------")
+        print( "Context:",response['context'])
+        print("-------------------")
         self.chat_history.append(HumanMessage(question))
         self.chat_history.append(AIMessage(response['answer']))
 

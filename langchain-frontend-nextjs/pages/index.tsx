@@ -27,6 +27,9 @@ export default function Home() {
     const [chatMessage, setChatMessage] = useState(''); 
     const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
     const [darkMode, setDarkMode] = useState(false);
+    const [githubLoading, setGithubLoading] = useState(false);
+    const [showRepoMessage, setShowRepoMessage] = useState(false); 
+
 
     useEffect(() => {
         const storedRepo = async () => {
@@ -44,6 +47,7 @@ export default function Home() {
                         setTimeout(() => {
                             setFinalMessage('');
                             setDeleteRepoMessage(`Do you want to delete the repository ${data.repo_url} and add another GitHub repository?`);
+                            setShowRepoMessage(true);
                         }, 2000);
                     }, 2000);
                     
@@ -77,7 +81,7 @@ export default function Home() {
 
 
     const handleGitHubSubmit = async (githubRepo: string) => {
-        setInitialLoading(false);
+        setGithubLoading(true);
         console.log("Github Repo: ", githubRepo)
         
         try{
@@ -106,7 +110,7 @@ export default function Home() {
                         setFinalMessage(''); 
                         setShowInputs(false);
                         setDeleteRepoMessage(`Do you want to delete the repository ${githubRepo} and add another GitHub repository?`);
-                        
+                        setShowRepoMessage(true);
                     }, 4000); 
                     
                 }, 3000); 
@@ -122,7 +126,7 @@ export default function Home() {
             console.error("Error fetching response", err);
         }
         finally{
-            setInitialLoading(false);
+            setGithubLoading(false);
         }
 
     };
@@ -145,6 +149,7 @@ export default function Home() {
                 setFinalMessage('');
                 setGithubRepo('');
                 setShowInputs(true);
+                setShowRepoMessage(false);
                 setResponse(`Successfully deleted files from ${githubRepo}`);
                 setTimeout(() => {
                     setResponse('');
@@ -202,41 +207,40 @@ export default function Home() {
 
 
     return (
-        <div className={`${darkMode? `bg-black`:`bg-white`} w-full h-screen flex flex-col`}>
+        <div className={`${darkMode ? `bg-black` : `bg-white`} w-full h-screen flex flex-col`}>
             <ThemeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
-            
-           <div className="container mx-auto max-w-screen-sm px-5 mb-2">
-                <Header mode={darkMode}/>
+            <div className="container mx-auto max-w-screen-sm px-5 mb-2">
+                <Header mode={darkMode} />
                 {initialLoading ? (
-                <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
-                    <div className={`spinner mr-2 ${darkMode ? 'dark' : 'light'}`}></div>
-                    <p>Setting up...</p>
-                </div>
+                    <div className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                        <div className={`spinner mr-2 ${darkMode ? 'dark' : 'light'}`}></div>
+                        <p>Setting up...</p>
+                    </div>
                 ) : (
-                <>
-                <p className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
-                    {githubRepo ? 
                     <>
-                        Currently using repository: <span className={`${darkMode ? 'text-white' : 'text-black'} font-bold`}>{githubRepo}</span>  
-                    </> :""}</p>
-                <GitHubForm onSubmit={handleGitHubSubmit} loading={initialLoading} showInputs={showInputs} mode ={darkMode}/>
-                <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
-                </>
+                        {showRepoMessage && (
+                            <p className={`${darkMode ? 'text-white' : 'text-black'} text-center`}>
+                                Currently using repository: <span className={`${darkMode ? 'text-white' : 'text-black'} font-bold`}>{githubRepo}</span>
+                            </p>
+                        )}
+                        <GitHubForm onSubmit={handleGitHubSubmit} loading={githubLoading} showInputs={showInputs} mode={darkMode} />
+                        <ResponseMessage message={response} error={error} finalMessage={finalMessage} />
+                    </>
                 )}
             </div>
-            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} mode={darkMode}  />
-            {/* Main Chat Area */}
-            <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4  overflow-hidden">
-                <div className="flex-grow overflow-hidden mb-12">
-                    <ChatArea chatHistory={chatHistory} isLoading={chatLoading} mode={darkMode} />
+            <DeleteRepo onDelete={handleRemoveRepo} message={deleteRepoMessage} loading={deleteLoading} mode={darkMode} />
+            {githubRepo && (
+                <div className="flex-grow flex flex-col container mx-auto max-w-screen-xl px-4 overflow-hidden">
+                    <div className="flex-grow overflow-hidden mb-12">
+                        <ChatArea chatHistory={chatHistory} isLoading={chatLoading} mode={darkMode} />
+                    </div>
+                    
+                    <div className="mt-4 py-4">
+                        <ChatForm onSubmit={handleChatSubmit} mode={darkMode} />
+                    </div>
                 </div>
-                {/* Chat Form - Always visible at the bottom */}
-                <div className="mt-4 py-4">
-                    <ChatForm onSubmit={handleChatSubmit} mode={darkMode} />
-                </div>
-            </div>
+            )}
         </div>
-        
-    )
+    );
 }   

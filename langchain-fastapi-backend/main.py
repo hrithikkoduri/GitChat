@@ -64,9 +64,17 @@ class RepoRequest(BaseModel):
     githubRepo: str
 
 
-db = deeplake.load_db()
+
+
 conn, c = init_db()
 
+@app.on_event("startup")
+async def load_deeplake_db():
+    global db
+    db = deeplake.load_db() 
+    global output_instance 
+    output_instance = Output(db)
+    print("deeplake DB loaded at startup")
 
 
 @app.post("/chat/")
@@ -74,7 +82,7 @@ async def chat(request: PromptRequest):
     try:
         print("Request: ", request.question)
 
-        response = Output(db).chat(request.question)
+        response = output_instance.chat(request.question)
         
         print("Response: ", response['response'])
         return {"response": response['response']}
@@ -111,7 +119,7 @@ async def load_repo(repo_request: RepoRequest):
 
 @app.post("/delete-repo/")
 async def delete_repo(repo_request: RepoRequest):
-    global db
+    
     try:
         repo_url = repo_request.githubRepo
         print("Deleting repo: ", repo_url)

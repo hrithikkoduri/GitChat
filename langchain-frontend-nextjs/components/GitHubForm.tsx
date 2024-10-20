@@ -28,10 +28,17 @@ export default function GitHubForm({ onSubmit, loading, showInputs, mode }: GitH
                 placeholder="Enter the link of the github repository"
             />
             <button
-                className={`px-4 py-2 text-white text-lg rounded-3xl ${loading ? 'bg-gray-800' : 'bg-blue-500 hover:bg-blue-600'}`}
+                className={`px-4 py-2 text-white text-lg rounded-3xl ${loading ? (mode? 'bg-black' : `bg-white` )  : 'bg-blue-500 hover:bg-blue-600'}`}
                 type="submit"
                 disabled={loading}>
-                {loading ? <div className="spinner">Loading...</div> : 'Submit'}
+                {loading ? (
+                    <div className="chat-message flex top-0 right-0 justify-start">
+                    <div className={`${mode ?  'text-white' :'text-black'} flex items-center p-1 text-sm rounded bg-none`}>
+                    <div className={`spinner mr-2 ${mode ? 'dark' : 'light'}`}></div>
+                        <span>Loading Github Repo...</span>
+                    </div>
+                </div>
+                ): 'Submit'}
             </button>
         </form>
     );
