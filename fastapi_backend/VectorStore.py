@@ -9,9 +9,11 @@ from langchain_community.document_loaders import TextLoader
 import shutil
 from langchain.text_splitter import SpacyTextSplitter
 import time
+import spacy
 
 
 load_dotenv()
+nlp = spacy.load("en_core_web_sm")
 activeloop_token = os.getenv("ACTIVELOOP_TOKEN")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -29,8 +31,8 @@ class VectorStore:
         print("Loaded Vector Store!")
         return self.db
     
-    def load_github_repo(self, repo_url):
-        self.db = DeepLake(dataset_path = self.dataset_path, embedding=self.embeddings)
+    def load_github_repo(self, repo_url, db):
+        self.db = db
 
         docs = []
         all_document_objects = []
@@ -76,11 +78,11 @@ class VectorStore:
         self.db.add_documents(documents=non_empty_docs)    
         print("Repo Cloned and Loaded!")
 
-        return self.db
-
-    def delete_github_repo(self, repo_url):
         
-        self.db = DeepLake(dataset_path = self.dataset_path)
+
+    def delete_github_repo(self, repo_url, db):
+        
+        self.db = db
 
         print(f"Deleting all documents related to {repo_url} from the vector store...")
         self.db.delete(filter ={"metadata": {"repo_url": repo_url}})
