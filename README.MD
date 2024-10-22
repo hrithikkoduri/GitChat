@@ -4,6 +4,9 @@
 
 Users can ask specific questions about repository content—like "What are the key features?" or "How XYZ module works?"—and receive contextual answers along with relevant code snippets. Its intelligent document-splitting feature ensures precise searches, while a dynamic interface supports dark mode and maintains chat history for seamless context. GitChat streamlines the process of extracting insights from repositories, saving valuable development time and fostering collaboration in the coding community.
 
+## Demo
+![Demo of GitChat](assets/demo.gif)
+
 ## Table of Contents
 
 - [Features](#features)
