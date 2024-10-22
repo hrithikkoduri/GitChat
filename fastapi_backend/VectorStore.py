@@ -19,8 +19,8 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 class VectorStore:
     def __init__(self):
-        self.activeloop_org = "hrithikkoduri18"
-        self.activeloop_dataset = "gitchat_test_8"
+        self.activeloop_org = "<YOUR_ACTIVELOOP_ORGANISATION_NAME>" # replace with your ActiveLoop organisation name
+        self.activeloop_dataset = "<DATASET_NAME>" # replace with your ActiveLoop dataset name you want to be created
         self.dataset_path = f"hub://{self.activeloop_org}/{self.activeloop_dataset}"
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         self.db = None

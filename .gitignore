@@ -8,8 +8,8 @@ venv/
 *.so
 
 # Environment variables
-.env
 
+repo_url.db
 # Node.js
 node_modules/
 
