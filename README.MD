@@ -128,9 +128,8 @@ Once both the backend and frontend are running, you can interact with GitChat th
 
 ### Frontend (Next.js)
 
-1. Navigate to the nextjs-frontend directory:
+1. Open another terminal and navigate to the nextjs-frontend directory:
     ```bash
-    cd ..
     cd nextjs-frontend
     ```
 
